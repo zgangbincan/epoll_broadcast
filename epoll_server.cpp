@@ -11,22 +11,22 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#define IPADDRESS   "127.0.0.1"
-#define PORT        8788
+#define IPADDRESS   "192.168.1.114"
+#define PORT        8888
 #define MAXSIZE     1024
-#define LISTENQ     5
+#define LISTENQ     10
 #define FDSIZE      1000
 #define EPOLLEVENTS 100
 
+// userInfo可以存储连接上来用户的信息
+// 后面的消息推送等功能可以根据用户的信息来做（提供扩展）
 typedef struct userInfo
 {
 	// 对应的文件描述符
 	int fd;
-	// 第几个连接进来的人
-	int num;
+	// 按照需要添加用户的信息
 }UserInfo;
 
-const int num = 0;
 
 std::map<int, UserInfo> userMap;
 
@@ -148,7 +148,7 @@ static void do_read(int epollfd,int fd,char *buf, struct epoll_event *events, in
         close(fd);
         delete_event(epollfd,fd,EPOLLIN);
     }
-	
+	// 读了消息后自己可以做相应的处理
 	int i;
 	for (std::map<int, UserInfo>::iterator it = userMap.begin(); it != userMap.end(); ++it)
 	{
@@ -177,7 +177,6 @@ static void add_event(int epollfd,int fd,int state)
 	// 把用户添加到map里
 	UserInfo userInfo;
 	userInfo.fd = fd;
-	userInfo.num = num;
 	userMap[fd] = userInfo;
 	printf("accept a new event:%d\n", fd);	
 }
